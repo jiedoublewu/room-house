@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>任务八：JavaScript和树</title>
+	
+	<style >
+    div
+    {
+    	display: flex;
+    	display: -webkit-flex;
+    	display: -moz-flex;
+    	border:1px solid black;
+    	padding: 10px;
+    	margin: 10px;
+    }
+    
+    .now{
+    	background-color: lightgreen;
+    }
+
+
+	</style>
+</head>
+<body>
+	<div class="super">Super
+		<div class="cat">
+			Cat
+			<div class="apple">Apple
+				<div class="pear">Pear</div>
+				<div class="pig">Pig</div>
+				<div class="cola">Cola</div>
+				<div class="scoccer">Scoccer</div>
+			</div>
+			<div class="phone">Phone</div>
+			<div class="blank">
+				<div class="book">Book</div>
+				<div class="school">School</div>
+			</div>
+		</div>
+		<div class="note">Note
+			<div class="human">Human
+				<div class="code">Code</div>
+				<div class="operate">Operate</div>
+				<div class="man">Man</div>
+			</div>
+			<div class="program">Program
+				<div class="bement">Bement
+					<div class="cot">Cot</div>
+				</div>
+				<div class="gloss">Gloss</div>
+			</div>
+		</div>
+		<div class="fish">Fish</div>
+	</div>
+	<button id="add-btn">添加</button>
+	<button id="del-btn">删除</button>
+	<button id="search">查询</button>
+	<script>
+   (function()
+   	{
+        function Node(data)
+        {
+        	this.data=data.innerText;
+        	this.parent=null;
+        	this.children=data.children;
+        }
+
+
+        function Tree(data)
+        {
+        	var node=new Node(data);
+        	this._root=node;
+        }
+
+        Tree.prototype.traverseBF=function(callback)
+        {
+        	var queue=new Array();
+        	queue.unshift(this._root);
+        	currentNode=queue.pop();
+        	while(currentNode)
+        	{
+                 for(var i=0;i<currentNode.children.length;i++)
+                 {
+                 	queue.unshift(currentNode.children[i]);
+                 }
+                 callback(currentNode);
+                 currentNode=queue.pop();
+        	}
+        }
+
+        Tree.prototype.contains=function(traverse,callback)
+        {
+            traverse.call(this,callback);
+        }
+
+
+       function paint(arr)
+       {
+             for(var i=0;i<arr.length;i++)
+             {
+                   arr[i].style.backgroundColor="white";
+             }
+       }
+
+       Tree.prototype.add=function(newNode,toNode,traverse,content)
+       { 
+       	  var child=document.createElement(newNode);
+       	  var parent=null;
+       	  child.innerText=content;
+       	  child.style.backgroundColor="white";
+       	  var callback=function(node)
+       	  {
+              if(node.innerText==toNode.innerText)
+              {
+              	parent=node;
+              }
+       	  }
+
+       	  this.contains(traverse,callback);
+       	  if(parent)
+       	  {
+              parent.appendChild(child);
+       	  }else
+       	  {
+       	  	throw new Error("Can't add node to a non-existent parent");
+       	  }
+
+       }
+
+        function init()
+        {
+        	 var root=document.querySelector(".super");
+             var tree=new Tree(root);
+             var arr=[];
+             var icon=null;
+             var addBtn=document.querySelector("#add-btn");
+             var delBtn=document.querySelector("#del-btn");
+             var search=document.querySelector("#search");
+             // tree.contains(tree.traverseBF,function(node)
+             // 	{
+             //         if(node.className==="fish")
+             //         {
+             //         	node.style.backgroundColor="lightgreen";
+             //         }
+             // 	});
+
+             root.addEventListener("click",function(e)
+             	{
+                    var arr=[];
+                    tree.traverseBF(function(node)
+                    	{
+                    		arr.push(node);
+                    	});
+                    arr.shift();
+                    arr.unshift(this);
+             		for(var i=0;i<arr.length;i++)
+             		{
+
+             			arr[i].style.backgroundColor="white";
+
+             		}
+             		
+                     e.target.style.backgroundColor="lightgreen";
+                     icon=e.target;
+             	});
+
+
+             addBtn.addEventListener("click",function()
+             	{
+             		tree.add("div",icon,tree.traverseBF,"hello world");
+             	});
+             delBtn.addEventListener("click",function(e)
+             	{
+                    if(!icon)
+                    {
+                    	alert("请选择要删除的元素");
+                    }
+                    else
+                    {
+                    	icon.remove();
+                    }
+                    
+             	});
+             search.addEventListener("click",function()
+             	{
+             		var destination=null;
+             		tree.contains(tree.traverseBF,function(node)
+             			{
+                              if(node.innerText=="hello world")
+                              {
+                              	
+                              	destination=node;
+                              }
+
+             			});
+             		if(destination)
+             		{
+             			destination.style.backgroundColor="lightblue";
+             		}else
+             		{
+             			alert("查无此元素");
+             		}
+             	});
+
+             // document.addEventListener("click",function(e)
+             // 	{
+             //          tree.add("div",e.target,tree.traverseBF,"hello world");
+             // 	});
+      	  //    tree.traverseBF(function(node)
+        	// {
+         //          arr.push(node);
+        	// });
+      	  //    arr.shift();
+      	  //    arr.unshift(root);
+      	     
+      	  //    console.log(arr);
+      	  //    var i=0;
+      	  //    var interval=setInterval(function()
+      	  //    	{
+         //           paint(arr);
+         //           arr[i].style.backgroundColor="blue";
+         //           i++;
+         //           if(i==arr.length)
+         //           {
+         //           	clearInterval(interval);
+         //           }
+      	  //    	},1000);
+        }
+       init();
+
+   	})();
+
+
+	</script>
+
+</body>
+</html>
