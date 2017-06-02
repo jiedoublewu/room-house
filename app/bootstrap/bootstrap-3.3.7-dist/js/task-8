@@ -53,26 +53,33 @@
 		</div>
 		<div class="fish">Fish</div>
 	</div>
+	<input type="text" id="add-content">
 	<button id="add-btn">添加</button>
 	<button id="del-btn">删除</button>
+	<input type="text" id="search-content">
 	<button id="search">查询</button>
 	<script>
    (function()
    	{
+
+   		// 创建节点类
         function Node(data)
         {
-        	this.data=data.innerText;
+        	this.data=data;
         	this.parent=null;
         	this.children=data.children;
         }
 
-
+       
+        // 创建树类
         function Tree(data)
         {
-        	var node=new Node(data);
-        	this._root=node;
+        	
+        	this._root=data;
         }
+        
 
+        // 树的原型广度遍历方法
         Tree.prototype.traverseBF=function(callback)
         {
         	var queue=new Array();
@@ -88,13 +95,15 @@
                  currentNode=queue.pop();
         	}
         }
+       
 
+        // 是否含有该元素的查询方法
         Tree.prototype.contains=function(traverse,callback)
         {
             traverse.call(this,callback);
         }
 
-
+        // 遍历过程中的颜色显示方法
        function paint(arr)
        {
              for(var i=0;i<arr.length;i++)
@@ -102,7 +111,9 @@
                    arr[i].style.backgroundColor="white";
              }
        }
+       
 
+        // 添加元素模块方法
        Tree.prototype.add=function(newNode,toNode,traverse,content)
        { 
        	  var child=document.createElement(newNode);
@@ -133,18 +144,16 @@
         	 var root=document.querySelector(".super");
              var tree=new Tree(root);
              var arr=[];
-             var icon=null;
+             var icon=null;//用来标记点击的元素
              var addBtn=document.querySelector("#add-btn");
              var delBtn=document.querySelector("#del-btn");
              var search=document.querySelector("#search");
-             // tree.contains(tree.traverseBF,function(node)
-             // 	{
-             //         if(node.className==="fish")
-             //         {
-             //         	node.style.backgroundColor="lightgreen";
-             //         }
-             // 	});
+             var addContent=document.querySelector("#add-content");
+             var searchContent=document.querySelector("#search-content");
 
+             
+
+             // 委托代理模式，点击树中的某个模块，返回该元素
              root.addEventListener("click",function(e)
              	{
                     var arr=[];
@@ -156,20 +165,20 @@
                     arr.unshift(this);
              		for(var i=0;i<arr.length;i++)
              		{
-
              			arr[i].style.backgroundColor="white";
-
              		}
-             		
                      e.target.style.backgroundColor="lightgreen";
                      icon=e.target;
              	});
 
-
+             // 增加按钮响应事件，在点击的元素中增加子元素
              addBtn.addEventListener("click",function()
              	{
-             		tree.add("div",icon,tree.traverseBF,"hello world");
+             		var inputContent=addContent.value.trim();
+             		tree.add("div",icon,tree.traverseBF,inputContent);
              	});
+
+             // 删除按钮响应事件，删除点击的元素及其子元素
              delBtn.addEventListener("click",function(e)
              	{
                     if(!icon)
@@ -182,53 +191,47 @@
                     }
                     
              	});
+
+             // 查询按钮响应事件，查询相关内容的元素
              search.addEventListener("click",function()
              	{
              		var destination=null;
+             		var inputContent=searchContent.value.trim();
              		tree.contains(tree.traverseBF,function(node)
              			{
-                              if(node.innerText=="hello world")
+                              if(inputContent.match(node.innerText))
                               {
-                              	
                               	destination=node;
                               }
-
              			});
-             		if(destination)
-             		{
-             			destination.style.backgroundColor="lightblue";
-             		}else
-             		{
-             			alert("查无此元素");
-             		}
+             		
+             		var arr=[];
+                    tree.traverseBF(function(node)
+                    	{
+                    		arr.push(node);
+                    	});
+                      arr.shift();
+                      arr.unshift(root);
+                      var i=0;
+		      	     var interval=setInterval(function()
+		      	     	{
+		                   paint(arr);
+		                   arr[i].style.backgroundColor="blue";
+		                   if(arr[i]==destination)
+		                   {
+		                   	destination.style.backgroundColor="lightblue";
+		                   	clearInterval(interval);
+		                   }
+		                   i++;
+		                   if(i==arr.length)
+		                   {
+		                   	    alert("查不到该元素");
+		                   		clearInterval(interval);
+		                   }
+		      	     	},30);	
              	});
-
-             // document.addEventListener("click",function(e)
-             // 	{
-             //          tree.add("div",e.target,tree.traverseBF,"hello world");
-             // 	});
-      	  //    tree.traverseBF(function(node)
-        	// {
-         //          arr.push(node);
-        	// });
-      	  //    arr.shift();
-      	  //    arr.unshift(root);
-      	     
-      	  //    console.log(arr);
-      	  //    var i=0;
-      	  //    var interval=setInterval(function()
-      	  //    	{
-         //           paint(arr);
-         //           arr[i].style.backgroundColor="blue";
-         //           i++;
-         //           if(i==arr.length)
-         //           {
-         //           	clearInterval(interval);
-         //           }
-      	  //    	},1000);
         }
        init();
-
    	})();
 
 
